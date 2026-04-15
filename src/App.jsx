@@ -397,7 +397,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
         position: 'absolute',
         bottom: isMobile ? '30%' : '20vh',
         top: 'auto',
-        left: isMobile ? '2%' : '42%',
+        left: isMobile ? '7%' : '42%',
         marginLeft: 0,
         width: 174,
         height: 410,
