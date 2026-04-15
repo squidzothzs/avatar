@@ -673,7 +673,7 @@ function WardrobeItem({ item, isEquipped, isDragging, isMobile, rotation, onPoin
       }}
     >
       {/* Custom Hover Text Overlay */}
-      {hovered && !isDragging && (
+      {hovered && !isDragging && !isMobile && (
         <div style={{
           position: 'absolute',
           top: '50%',
@@ -706,7 +706,7 @@ function WardrobeItem({ item, isEquipped, isDragging, isMobile, rotation, onPoin
             height: '100%',
             objectFit: 'contain',
             pointerEvents: 'none',
-            opacity: hovered && !isDragging ? 0.35 : 1,
+            opacity: hovered && !isDragging && !isMobile ? 0.35 : 1,
             filter: isEquipped ? `drop-shadow(0 0 10px ${item.accent})` : 'drop-shadow(4px 4px 0px rgba(0,0,0,0.4))',
             transition: 'opacity 0.15s ease'
           }}
@@ -1045,6 +1045,9 @@ export default function App() {
     }
 
     function onMove(e) {
+      if (e.cancelable !== false) {
+        e.preventDefault()
+      }
       const { x, y } = getPos(e)
       setDragState(prev => ({ ...prev, x, y }))
       setDragOver(isOverDoll(x, y))
@@ -1069,7 +1072,7 @@ export default function App() {
     // called stopPropagation or setPointerCapture somewhere.
     window.addEventListener('pointermove', onMove, true)
     window.addEventListener('pointerup',   onUp,   true)
-    window.addEventListener('touchmove',   onMove, { passive: true, capture: true })
+    window.addEventListener('touchmove',   onMove, { passive: false, capture: true })
     window.addEventListener('touchend',    onUp,   true)
     return () => {
       window.removeEventListener('pointermove', onMove, true)
@@ -1105,6 +1108,7 @@ export default function App() {
         overflow: 'hidden',
         fontFamily: '"Balsamiq Sans", cursive',
         cursor: dragState ? C.grabbing : C.default,
+        touchAction: dragState ? 'none' : 'auto',
       }}
     >
       <SvgDefs />
