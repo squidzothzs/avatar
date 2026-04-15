@@ -395,8 +395,8 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
       ref={dollRef}
       style={{
         position: 'absolute',
-        bottom: isMobile ? '5%' : '20vh',
-        top: isMobile ? '10%' : 'auto',
+        bottom: isMobile ? '18%' : '20vh',
+        top: 'auto',
         left: isMobile ? '2%' : '42%',
         marginLeft: 0,
         width: 174,
@@ -404,7 +404,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
         zIndex: 10,
         cursor: dragOver ? C.copy : C.default,
         transform: `scale(${isMobile ? 0.75 : 1.5})`,
-        transformOrigin: isMobile ? 'top left' : 'bottom center',
+        transformOrigin: isMobile ? 'bottom left' : 'bottom center',
       }}
     >
       {/* Drop-zone ring — only visible while dragging over */}
