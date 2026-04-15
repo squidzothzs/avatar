@@ -1,23 +1,30 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { Crown, Shirt, Package, Star, X, Zap } from 'lucide-react'
 
+import mogiBeanieImg from '../assets/mogi beanie.png'
+import mogiHoodieImg from '../assets/mogi hoodie.png'
+import plaidHoodieImg from '../assets/plaid hoodie.png'
+import monsterBeanieImg from '../assets/monster beanie.png'
+import crewneckImg from '../assets/crewneck.png'
+import stripeImg from '../assets/stripe.png'
+
 // ═══════════════════════════════════════════════════════════════════════════
 // INVENTORY — replace color/accent with real PNG paths when assets are ready
 // ═══════════════════════════════════════════════════════════════════════════
 
 const INVENTORY = {
   headwear: [
-    { id: 'h1', name: 'Skull Cap',      color: '#1a2744', accent: '#f5a623' },
-    { id: 'h2', name: 'Monster Beanie', color: '#1a1a1a', accent: '#e8c94f' },
+    { id: 'h1', name: 'MOGI Beanie', image: mogiBeanieImg, color: '#1a2744', accent: '#f5a623' },
+    { id: 'h2', name: 'Monster Beanie', image: monsterBeanieImg, color: '#1a1a1a', accent: '#e8c94f' },
     { id: 'h3', name: 'Bucket Hat',     color: '#6b7c4a', accent: '#f5e6c8' },
   ],
   tops: [
-    { id: 't1', name: 'Plaid Hoodie',    color: '#8b2635', accent: '#f5a623' },
-    { id: 't2', name: 'Stripe Shirt',    color: '#87ceeb', accent: '#cc2200' },
-    { id: 't3', name: 'Stripe Crewneck', color: '#5b9bd5', accent: '#8b2635' },
+    { id: 't1', name: 'Plaid Hoodie', image: plaidHoodieImg, color: '#8b2635', accent: '#f5a623' },
+    { id: 't2', name: 'Stripe Shirt', image: stripeImg, scale: 1.35, color: '#87ceeb', accent: '#cc2200' },
+    { id: 't3', name: 'Stripe Crewneck', image: crewneckImg, color: '#5b9bd5', accent: '#8b2635' },
     { id: 't4', name: 'Rasta Tee',       color: '#2d5016', accent: '#f5a623' },
     { id: 't5', name: 'Denim Jacket',    color: '#4a5d7a', accent: '#f5a623' },
-    { id: 't6', name: 'MOGI Hoodie',     color: '#1a1a1a', accent: '#e8c94f' },
+    { id: 't6', name: 'MOGI Hoodie', image: mogiHoodieImg, color: '#1a1a1a', accent: '#e8c94f' },
   ],
   bottoms: [
     { id: 'b1', name: 'Wide Khakis',  color: '#c8a96a', accent: '#2d2d2d' },
@@ -46,6 +53,21 @@ function getSlot(item) {
 const R1 = '255px 15px 225px 15px/15px 225px 15px 255px'
 const R2 = '15px 255px 15px 225px/225px 15px 255px 15px'
 const SKIN = '#e8c9a0'
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CUSTOM RE-COLORABLE POINTER CURSORS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CURSOR_SVG = (fill) => `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='38' height='38' viewBox='0 0 24 24'><path fill='${fill.replace('#', '%23')}' stroke='%231a2744' stroke-width='1.5' stroke-linejoin='round' d='M4,3 L4,21 L9,15.5 L13,23 L16,21.5 L12,14 L19,14 Z'/></svg>") 4 3`
+
+const C = {
+  default:   `${CURSOR_SVG('#5b9bd5')}, auto`,
+  pointer:   `${CURSOR_SVG('#f5a623')}, pointer`,
+  grab:      `${CURSOR_SVG('#87ceeb')}, grab`,
+  grabbing:  `${CURSOR_SVG('#8b2635')}, grabbing`,
+  crosshair: `${CURSOR_SVG('#2d5016')}, crosshair`,
+  copy:      `${CURSOR_SVG('#7aad5a')}, copy`,
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SVG FILTER DEFS  — hidden, referenced via filter: url(#id)
@@ -320,7 +342,7 @@ function Sidebar({ activeTab, onTabChange }) {
               border: `3px solid #2d2d2d`,
               boxShadow: active ? '2px 2px 0 0 #2d2d2d' : '3px 3px 0 0 #2d2d2d',
               borderRadius: 10,
-              cursor: 'pointer',
+              cursor: C.pointer,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -378,7 +400,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
         width: 174,
         height: 410,
         zIndex: 10,
-        cursor: dragOver ? 'copy' : 'default',
+        cursor: dragOver ? C.copy : C.default,
         transform: 'scale(1.5)',
         transformOrigin: 'bottom center',
       }}
@@ -429,7 +451,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
               border: '3px solid #2d2d2d',
               borderBottom: 'none',
               zIndex: 6,
-              cursor: 'pointer',
+              cursor: C.pointer,
               overflow: 'hidden',
             }}
           >
@@ -476,7 +498,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
               background:'#f0f0f0', border:'1px solid #888',
               display:'flex', alignItems:'center', justifyContent:'center',
             }}>
-              <span style={{ fontFamily:'"Luckiest Guy",cursive', fontSize:5, color:'#2d2d2d', lineHeight:1 }}>{l}</span>
+              <span style={{ fontFamily:'"Luckiest Guy",cursive', fontSize:8, color:'#2d2d2d', lineHeight:1 }}>{l}</span>
             </div>
           ))}
         </div>
@@ -506,7 +528,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
           boxShadow: dragOver ? `0 0 0 3px #f5a623, 4px 4px 0 0 #2d2d2d` : '4px 4px 0 0 #2d2d2d',
           transition:'background 0.22s, box-shadow 0.15s',
           zIndex:4,
-          cursor: equipped.top ? 'pointer' : 'crosshair',
+          cursor: equipped.top ? C.pointer : C.crosshair,
           overflow:'hidden',
         })}
       >
@@ -561,7 +583,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
           transform:'rotate(3deg)',
           borderRadius:R1, boxShadow:'3px 3px 0 0 #2d2d2d',
           transition:'background 0.22s', zIndex:3,
-          cursor: equipped.bottom ? 'pointer' : 'crosshair',
+          cursor: equipped.bottom ? C.pointer : C.crosshair,
         })}
       />
       {/* ── RIGHT LEG ── */}
@@ -574,7 +596,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
           transform:'rotate(-3deg)',
           borderRadius:R2, boxShadow:'3px 3px 0 0 #2d2d2d',
           transition:'background 0.22s', zIndex:3,
-          cursor: equipped.bottom ? 'pointer' : 'crosshair',
+          cursor: equipped.bottom ? C.pointer : C.crosshair,
         })}
       />
 
@@ -611,7 +633,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
               borderRadius:8, padding:'6px 12px',
               fontFamily:'"Balsamiq Sans",cursive',
               fontSize:14, fontWeight:700, color:'#2d2d2d',
-              boxShadow:'3px 3px 0 0 #2d2d2d', cursor:'pointer',
+              boxShadow:'3px 3px 0 0 #2d2d2d', cursor: C.pointer,
             }}
           >
             {item.name} ×
@@ -626,7 +648,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
 // WARDROBE ITEM — filtered bg shape, unfiltered label on top
 // ═══════════════════════════════════════════════════════════════════════════
 
-function WardrobeItem({ item, isEquipped, rotation, onPointerDragStart, onClick }) {
+function WardrobeItem({ item, isEquipped, isDragging, rotation, onPointerDragStart, onClick }) {
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -635,64 +657,106 @@ function WardrobeItem({ item, isEquipped, rotation, onPointerDragStart, onClick 
       onClick={() => onClick(item)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      title={`${item.name} — click or drag to equip`}
       style={{
         position: 'relative',
-        width: 110,
-        height: 110,
-        margin: '7px 7px',
-        transform: `rotate(${rotation}deg) scale(${hovered ? 1.1 : 1})`,
-        cursor: 'grab',
+        width: 180,
+        height: 180,
+        margin: '10px 12px',
+        transform: `rotate(${rotation}deg) scale(${(hovered ? 1.08 : 1) * (item.scale || 1)})`,
+        cursor: C.grab,
         flexShrink: 0,
         userSelect: 'none',
         transition: 'transform 0.12s ease',
         '--rot': `${rotation}deg`,
       }}
     >
-      {/* Filtered visual layer — shape only, NO text */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: item.color,
-          border: '4px solid #2d2d2d',
-          boxShadow: isEquipped
-            ? `0 0 0 3px ${item.accent}, 3px 3px 0 0 #2d2d2d`
-            : '3px 3px 0 0 #2d2d2d',
-          borderRadius: R1,
-          filter: 'url(#micro-warp)',
-        }}
-      />
-      {/* Unfiltered label + accent stripe — DO NOT add filter here */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          pointerEvents: 'none',
-          gap: 4,
-        }}
-      >
+      {/* Custom Hover Text Overlay */}
+      {hovered && !isDragging && (
         <div style={{
-          width: '50%', height: 6,
-          background: item.accent, border: '2px solid #2d2d2d',
-          borderRadius: 2,
-        }} />
-        <span style={{
-          fontFamily: '"Balsamiq Sans", cursive',
-          fontSize: 24, fontWeight: 700,
-          color: item.accent, textAlign: 'center',
-          lineHeight: 1.15, padding: '0 6px',
-          textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
-          wordBreak: 'break-word',
-          maxWidth: '95%',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          color: '#000',
+          fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+          fontSize: 22,
+          fontWeight: 900,
+          textAlign: 'center',
+          letterSpacing: 1,
+          lineHeight: 1.2,
+          whiteSpace: 'pre-wrap',
+          textTransform: 'uppercase',
+          pointerEvents: 'none',
+          zIndex: 20,
+          textShadow: '0px 0px 8px rgba(255,255,255,0.8)'
         }}>
           {item.name}
-        </span>
-      </div>
+        </div>
+      )}
+
+      {item.image ? (
+        <img 
+          src={item.image} 
+          alt={item.name}
+          draggable="false"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            pointerEvents: 'none',
+            opacity: hovered && !isDragging ? 0.35 : 1,
+            filter: isEquipped ? `drop-shadow(0 0 10px ${item.accent})` : 'drop-shadow(4px 4px 0px rgba(0,0,0,0.4))',
+            transition: 'opacity 0.15s ease'
+          }}
+        />
+      ) : (
+        <>
+          {/* Filtered visual layer — shape only, NO text */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: item.color,
+              border: '4px solid #2d2d2d',
+              boxShadow: isEquipped
+                ? `0 0 0 3px ${item.accent}, 3px 3px 0 0 #2d2d2d`
+                : '3px 3px 0 0 #2d2d2d',
+              borderRadius: R1,
+              filter: 'url(#micro-warp)',
+            }}
+          />
+          {/* Unfiltered label + accent stripe — DO NOT add filter here */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              pointerEvents: 'none',
+              gap: 4,
+            }}
+          >
+            <div style={{
+              width: '50%', height: 6,
+              background: item.accent, border: '2px solid #2d2d2d',
+              borderRadius: 2,
+            }} />
+            <span style={{
+              fontFamily: '"Balsamiq Sans", cursive',
+              fontSize: 24, fontWeight: 700,
+              color: item.accent, textAlign: 'center',
+              lineHeight: 1.15, padding: '0 6px',
+              textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
+              wordBreak: 'break-word',
+              maxWidth: '95%',
+            }}>
+              {item.name}
+            </span>
+          </div>
+        </>
+      )}
 
       {/* Equipped checkmark badge */}
       {isEquipped && (
@@ -715,76 +779,37 @@ function WardrobeItem({ item, isEquipped, rotation, onPointerDragStart, onClick 
 // WARDROBE PANEL — right-side panel with scrollable item grid
 // ═══════════════════════════════════════════════════════════════════════════
 
-function Wardrobe({ items, equipped, onPointerDragStart, onClick }) {
+function Wardrobe({ items, equipped, isDragging, onPointerDragStart, onClick }) {
   const isEquipped = item => equipped[getSlot(item)]?.id === item.id
 
   return (
     <div
       style={{
         position: 'absolute',
-        top: '6%',
-        right: 4,
-        width: 320,
+        top: '4%',
+        right: '6%',
+        width: 630,
         bottom: '2%',
         zIndex: 15,
         display: 'flex',
-        flexDirection: 'column',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignContent: 'center',
+        overflowY: 'auto',
+        scrollbarWidth: 'none',
       }}
     >
-      {/* Filtered panel background — shape only */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        background: '#f5e6c8',
-        border: '4px solid #2d2d2d',
-        boxShadow: '6px 6px 0 0 #2d2d2d',
-        borderRadius: R2,
-        filter: 'url(#micro-warp)',
-      }} />
-
-      {/* Unfiltered header */}
-      <div style={{ position:'relative', zIndex:2, padding:'18px 18px 8px' }}>
-        <div style={{
-          fontFamily:'"Luckiest Guy",cursive',
-          fontSize:22, color:'#8b2635',
-          letterSpacing:2, textShadow:'2px 2px 0 #2d2d2d',
-        }}>WARDROBE</div>
-        <div style={{ width:'65%', height:3, background:'#2d2d2d', marginTop:5, borderRadius:2 }} />
-      </div>
-
-      {/* Scrollable item grid */}
-      <div style={{
-        position: 'relative', zIndex: 2,
-        display: 'flex', flexWrap: 'wrap',
-        padding: '6px 10px 10px',
-        alignContent: 'flex-start',
-        overflowY: 'auto',
-        flex: 1,
-        scrollbarWidth: 'thin',
-        scrollbarColor: '#8b2635 transparent',
-      }}>
-        {items.map((item, idx) => (
-          <WardrobeItem
-            key={item.id}
-            item={item}
-            isEquipped={isEquipped(item)}
-            rotation={ROTATIONS[idx % ROTATIONS.length]}
-            onPointerDragStart={onPointerDragStart}
-            onClick={onClick}
-          />
-        ))}
-      </div>
-
-      {/* Footer hint — unfiltered */}
-      <div style={{
-        position:'relative', zIndex:2,
-        padding:'6px 16px 16px',
-        fontFamily:'"Balsamiq Sans",cursive',
-        fontSize:11, color:'#7a5c3a', lineHeight:1.5,
-      }}>
-        drag onto doll or click to equip ★<br />
-        click doll body part to unequip
-      </div>
+      {items.map((item, idx) => (
+        <WardrobeItem
+          key={item.id}
+          item={item}
+          isEquipped={isEquipped(item)}
+          isDragging={isDragging}
+          rotation={ROTATIONS[idx % ROTATIONS.length]}
+          onPointerDragStart={onPointerDragStart}
+          onClick={onClick}
+        />
+      ))}
     </div>
   )
 }
@@ -829,7 +854,7 @@ function HeaderButtons({ onReset }) {
               fontSize:15, color:textColor,
               letterSpacing:2,
               textShadow: textColor === '#2d2d2d' ? 'none' : '1px 1px 0 #2d2d2d',
-              cursor:'pointer',
+              cursor: C.pointer,
             }}
           >
             {label}
@@ -848,7 +873,7 @@ function Stickers() {
   const items = [
     {
       text: "BARK WITH\nTHE BITE",
-      style: { top: '12%', left: '50%', transform: 'translateX(-50%)' },
+      style: { top: '12%', left: '22%' },
       rotate: 0,
       bg: '#f5e6c8',
       borderColor: '#f5a623',
@@ -859,22 +884,6 @@ function Stickers() {
       style: { top: '34%', left: '11%' },
       rotate: -6,
       bg: '#1a2744',
-      borderColor: '#f5a623',
-      textColor: '#f5a623',
-    },
-    {
-      text: 'FUN!',
-      style: { bottom: 'calc(22vh + 12px)', left: '13%' },
-      rotate: 5,
-      bg: '#f5a623',
-      borderColor: '#2d2d2d',
-      textColor: '#2d2d2d',
-    },
-    {
-      text: '★ 1997 ★',
-      style: { bottom: 'calc(22vh + 16px)', left: '60%' },
-      rotate: -3,
-      bg: '#963535',
       borderColor: '#f5a623',
       textColor: '#f5a623',
     },
@@ -933,45 +942,59 @@ function DragClone({ item, x, y }) {
   return (
     <div style={{
       position: 'fixed',
-      left: x - 55,
-      top: y - 55,
-      width: 110,
-      height: 110,
+      left: x - 90,
+      top: y - 90,
+      width: 180,
+      height: 180,
       pointerEvents: 'none',
       zIndex: 9999,
-      transform: 'rotate(-6deg) scale(1.12)',
+      transform: `rotate(-6deg) scale(${1.05 * (item.scale || 1)})`,
       transition: 'none',
     }}>
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: item.color,
-        border: '4px solid #2d2d2d',
-        boxShadow: `0 0 0 3px ${item.accent}, 6px 6px 0 0 #2d2d2d`,
-        borderRadius: R1,
-      }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        gap: 4, pointerEvents: 'none',
-      }}>
-        <div style={{ width: '50%', height: 6, background: item.accent, border: '2px solid #2d2d2d', borderRadius: 2 }} />
-        <span style={{
-          fontFamily: '"Balsamiq Sans", cursive',
-          fontSize: 24, fontWeight: 700,
-          color: item.accent, textAlign: 'center',
-          lineHeight: 1.15, padding: '0 6px',
-          textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
-          wordBreak: 'break-word', maxWidth: '95%',
-        }}>{item.name}</span>
-      </div>
+      {item.image ? (
+        <img 
+          src={item.image} 
+          alt={item.name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            filter: 'drop-shadow(6px 10px 4px rgba(0,0,0,0.3))'
+          }}
+        />
+      ) : (
+        <>
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: item.color,
+            border: '4px solid #2d2d2d',
+            boxShadow: `0 0 0 3px ${item.accent}, 8px 12px 0 0 rgba(45,45,45,0.8)`,
+            borderRadius: R1,
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 4, pointerEvents: 'none',
+          }}>
+            <div style={{ width: '50%', height: 6, background: item.accent, border: '2px solid #2d2d2d', borderRadius: 2 }} />
+            <span style={{
+              fontFamily: '"Balsamiq Sans", cursive',
+              fontSize: 24, fontWeight: 700,
+              color: item.accent, textAlign: 'center',
+              lineHeight: 1.15, padding: '0 6px',
+              textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
+              wordBreak: 'break-word', maxWidth: '95%',
+            }}>{item.name}</span>
+          </div>
+        </>
+      )}
     </div>
   )
 }
 
 export default function App() {
   const [equipped, setEquipped] = useState({ head: null, top: null, bottom: null })
-  const [activeTab, setActiveTab] = useState('tops')
   const [dragOver, setDragOver]   = useState(false)
   const [dragState, setDragState] = useState(null) // { item, x, y }
   const dollRef = useRef(null)
@@ -980,58 +1003,67 @@ export default function App() {
     // Only activate on left button / touch
     if (e.button !== undefined && e.button !== 0) return
     e.preventDefault()
-    e.currentTarget.setPointerCapture(e.pointerId)
+    // NOTE: do NOT call setPointerCapture here — it routes all subsequent
+    // pointer events to the source element and breaks the window listeners.
     setDragState({ item, x: e.clientX, y: e.clientY })
   }, [])
 
   useEffect(() => {
     if (!dragState) return
 
-    function onMove(e) {
-      const x = e.clientX ?? e.touches?.[0]?.clientX
-      const y = e.clientY ?? e.touches?.[0]?.clientY
-      setDragState(prev => ({ ...prev, x, y }))
+    function getPos(e) {
+      // Support both mouse and touch events
+      if (e.clientX !== undefined) return { x: e.clientX, y: e.clientY }
+      const t = e.touches?.[0] ?? e.changedTouches?.[0]
+      return t ? { x: t.clientX, y: t.clientY } : { x: 0, y: 0 }
+    }
 
-      // Check if pointer is over the doll (with padding for scaled character)
-      if (dollRef.current) {
-        const rect = dollRef.current.getBoundingClientRect()
-        const padding = 40
-        const over = x >= (rect.left - padding) && x <= (rect.right + padding) &&
-                     y >= (rect.top - padding) && y <= (rect.bottom + padding)
-        setDragOver(over)
-      }
+    function isOverDoll(x, y) {
+      if (!dollRef.current) return false
+      const rect = dollRef.current.getBoundingClientRect()
+      // The character div has transform: scale(1.5) with transformOrigin:'bottom center'.
+      // getBoundingClientRect() already accounts for CSS transforms, so the rect
+      // reflects the actual painted area. Add generous padding for usability.
+      const px = 60
+      const py = 60
+      return (
+        x >= rect.left - px && x <= rect.right  + px &&
+        y >= rect.top  - py && y <= rect.bottom + py
+      )
+    }
+
+    function onMove(e) {
+      const { x, y } = getPos(e)
+      setDragState(prev => ({ ...prev, x, y }))
+      setDragOver(isOverDoll(x, y))
     }
 
     function onUp(e) {
-      const x = e.clientX
-      const y = e.clientY
-      let dropped = false
+      const { x, y } = getPos(e)
 
-      if (dollRef.current && dragState.item) {
-        const rect = dollRef.current.getBoundingClientRect()
-        // Add padding to drop zone since character is scaled
-        const padding = 40
-        dropped = x >= (rect.left - padding) && x <= (rect.right + padding) &&
-                  y >= (rect.top - padding) && y <= (rect.bottom + padding)
-
-        if (dropped) {
-          const slot = getSlot(dragState.item)
-          setEquipped(prev => ({
-            ...prev,
-            [slot]: prev[slot]?.id === dragState.item.id ? null : dragState.item,
-          }))
-        }
+      if (dragState.item && isOverDoll(x, y)) {
+        const slot = getSlot(dragState.item)
+        setEquipped(prev => ({
+          ...prev,
+          [slot]: prev[slot]?.id === dragState.item.id ? null : dragState.item,
+        }))
       }
 
       setDragState(null)
       setDragOver(false)
     }
 
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
+    // Use capture phase so we receive events even if a child element
+    // called stopPropagation or setPointerCapture somewhere.
+    window.addEventListener('pointermove', onMove, true)
+    window.addEventListener('pointerup',   onUp,   true)
+    window.addEventListener('touchmove',   onMove, { passive: true, capture: true })
+    window.addEventListener('touchend',    onUp,   true)
     return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointermove', onMove, true)
+      window.removeEventListener('pointerup',   onUp,   true)
+      window.removeEventListener('touchmove',   onMove, true)
+      window.removeEventListener('touchend',    onUp,   true)
     }
   }, [dragState])
 
@@ -1060,7 +1092,7 @@ export default function App() {
         position: 'relative',
         overflow: 'hidden',
         fontFamily: '"Balsamiq Sans", cursive',
-        cursor: dragState ? 'grabbing' : 'default',
+        cursor: dragState ? C.grabbing : C.default,
       }}
     >
       <SvgDefs />
@@ -1068,7 +1100,6 @@ export default function App() {
       <Floor />
       <BackWindow />
       <LogoBlob />
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <CharacterDoll
         dollRef={dollRef}
         equipped={equipped}
@@ -1076,8 +1107,13 @@ export default function App() {
         onUnequip={handleUnequip}
       />
       <Wardrobe
-        items={INVENTORY[activeTab]}
+        items={[
+          ...INVENTORY.headwear,
+          ...INVENTORY.tops,
+          ...INVENTORY.bottoms
+        ]}
         equipped={equipped}
+        isDragging={!!dragState}
         onPointerDragStart={handlePointerDragStart}
         onClick={handleClickItem}
       />
