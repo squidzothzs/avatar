@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Crown, Shirt, Package, Star, X, Zap } from 'lucide-react'
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -314,8 +314,8 @@ function Sidebar({ activeTab, onTabChange }) {
             style={{
               position: 'relative',
               zIndex: 2,
-              width: 46,
-              height: 46,
+              width: 60,
+              height: 60,
               background: active ? '#f5a623' : '#fdf4e3',
               border: `3px solid #2d2d2d`,
               boxShadow: active ? '2px 2px 0 0 #2d2d2d' : '3px 3px 0 0 #2d2d2d',
@@ -329,7 +329,7 @@ function Sidebar({ activeTab, onTabChange }) {
               outline: 'none',
             }}
           >
-            <Icon size={20} color="#2d2d2d" strokeWidth={2.5} />
+            <Icon size={36} color="#2d2d2d" strokeWidth={2.5} />
           </button>
         )
       })}
@@ -359,7 +359,7 @@ function Sidebar({ activeTab, onTabChange }) {
 // Drop zone for drag-and-drop; also handles per-slot click unequip
 // ═══════════════════════════════════════════════════════════════════════════
 
-function CharacterDoll({ equipped, dragOver, onDragOver, onDragLeave, onDrop, onUnequip }) {
+function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
   // Reusable style factory for warped body-part divs
   const part = (extra = {}) => ({
     position: 'absolute',
@@ -370,9 +370,7 @@ function CharacterDoll({ equipped, dragOver, onDragOver, onDragLeave, onDrop, on
 
   return (
     <div
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
+      ref={dollRef}
       style={{
         position: 'absolute',
         bottom: '20vh',
@@ -381,6 +379,8 @@ function CharacterDoll({ equipped, dragOver, onDragOver, onDragLeave, onDrop, on
         height: 410,
         zIndex: 10,
         cursor: dragOver ? 'copy' : 'default',
+        transform: 'scale(1.5)',
+        transformOrigin: 'bottom center',
       }}
     >
       {/* Drop-zone ring — only visible while dragging over */}
@@ -593,9 +593,9 @@ function CharacterDoll({ equipped, dragOver, onDragOver, onDragLeave, onDrop, on
 
       {/* ── Equipped-item badges below character — unfiltered ── */}
       <div style={{
-        position:'absolute', bottom:-52, left:'50%',
+        position:'absolute', bottom:-70, left:'50%',
         transform:'translateX(-50%)',
-        display:'flex', gap:5, flexWrap:'nowrap',
+        display:'flex', gap:7, flexWrap:'nowrap',
         zIndex:20, whiteSpace:'nowrap',
       }}>
         {[
@@ -607,11 +607,11 @@ function CharacterDoll({ equipped, dragOver, onDragOver, onDragLeave, onDrop, on
             key={slot}
             onClick={() => onUnequip(slot)}
             style={{
-              background:'#f5a623', border:'2px solid #2d2d2d',
-              borderRadius:5, padding:'2px 7px',
+              background:'#f5a623', border:'3px solid #2d2d2d',
+              borderRadius:8, padding:'6px 12px',
               fontFamily:'"Balsamiq Sans",cursive',
-              fontSize:9, fontWeight:700, color:'#2d2d2d',
-              boxShadow:'2px 2px 0 0 #2d2d2d', cursor:'pointer',
+              fontSize:14, fontWeight:700, color:'#2d2d2d',
+              boxShadow:'3px 3px 0 0 #2d2d2d', cursor:'pointer',
             }}
           >
             {item.name} ×
@@ -626,23 +626,21 @@ function CharacterDoll({ equipped, dragOver, onDragOver, onDragLeave, onDrop, on
 // WARDROBE ITEM — filtered bg shape, unfiltered label on top
 // ═══════════════════════════════════════════════════════════════════════════
 
-function WardrobeItem({ item, isEquipped, rotation, onDragStart, onDragEnd, onClick }) {
+function WardrobeItem({ item, isEquipped, rotation, onPointerDragStart, onClick }) {
   const [hovered, setHovered] = useState(false)
 
   return (
     <div
-      draggable
-      onDragStart={e => onDragStart(e, item)}
-      onDragEnd={onDragEnd}
+      onPointerDown={e => onPointerDragStart(e, item)}
       onClick={() => onClick(item)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       title={`${item.name} — click or drag to equip`}
       style={{
         position: 'relative',
-        width: 78,
-        height: 78,
-        margin: '5px 4px',
+        width: 110,
+        height: 110,
+        margin: '7px 7px',
         transform: `rotate(${rotation}deg) scale(${hovered ? 1.1 : 1})`,
         cursor: 'grab',
         flexShrink: 0,
@@ -679,16 +677,18 @@ function WardrobeItem({ item, isEquipped, rotation, onDragStart, onDragEnd, onCl
         }}
       >
         <div style={{
-          width: '55%', height: 4,
-          background: item.accent, border: '1px solid #2d2d2d',
+          width: '50%', height: 6,
+          background: item.accent, border: '2px solid #2d2d2d',
           borderRadius: 2,
         }} />
         <span style={{
           fontFamily: '"Balsamiq Sans", cursive',
-          fontSize: 8.5, fontWeight: 700,
+          fontSize: 24, fontWeight: 700,
           color: item.accent, textAlign: 'center',
-          lineHeight: 1.2, padding: '0 5px',
+          lineHeight: 1.15, padding: '0 6px',
           textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
+          wordBreak: 'break-word',
+          maxWidth: '95%',
         }}>
           {item.name}
         </span>
@@ -697,13 +697,13 @@ function WardrobeItem({ item, isEquipped, rotation, onDragStart, onDragEnd, onCl
       {/* Equipped checkmark badge */}
       {isEquipped && (
         <div style={{
-          position: 'absolute', top: -10, right: -10,
-          background: item.accent, border: '3px solid #2d2d2d',
-          borderRadius: '50%', width: 22, height: 22,
+          position: 'absolute', top: -12, right: -12,
+          background: item.accent, border: '4px solid #2d2d2d',
+          borderRadius: '50%', width: 32, height: 32,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: '"Balsamiq Sans",cursive',
-          fontSize: 12, fontWeight: 900, color: '#2d2d2d',
-          zIndex: 5, boxShadow: '2px 2px 0 0 #2d2d2d',
+          fontSize: 20, fontWeight: 900, color: '#2d2d2d',
+          zIndex: 5, boxShadow: '3px 3px 0 0 #2d2d2d',
           pointerEvents: 'none',
         }}>✓</div>
       )}
@@ -715,7 +715,7 @@ function WardrobeItem({ item, isEquipped, rotation, onDragStart, onDragEnd, onCl
 // WARDROBE PANEL — right-side panel with scrollable item grid
 // ═══════════════════════════════════════════════════════════════════════════
 
-function Wardrobe({ items, equipped, onDragStart, onDragEnd, onClick }) {
+function Wardrobe({ items, equipped, onPointerDragStart, onClick }) {
   const isEquipped = item => equipped[getSlot(item)]?.id === item.id
 
   return (
@@ -723,9 +723,9 @@ function Wardrobe({ items, equipped, onDragStart, onDragEnd, onClick }) {
       style={{
         position: 'absolute',
         top: '6%',
-        right: 14,
-        width: 224,
-        bottom: '4%',
+        right: 4,
+        width: 320,
+        bottom: '2%',
         zIndex: 15,
         display: 'flex',
         flexDirection: 'column',
@@ -743,10 +743,10 @@ function Wardrobe({ items, equipped, onDragStart, onDragEnd, onClick }) {
       }} />
 
       {/* Unfiltered header */}
-      <div style={{ position:'relative', zIndex:2, padding:'16px 16px 6px' }}>
+      <div style={{ position:'relative', zIndex:2, padding:'18px 18px 8px' }}>
         <div style={{
           fontFamily:'"Luckiest Guy",cursive',
-          fontSize:17, color:'#8b2635',
+          fontSize:22, color:'#8b2635',
           letterSpacing:2, textShadow:'2px 2px 0 #2d2d2d',
         }}>WARDROBE</div>
         <div style={{ width:'65%', height:3, background:'#2d2d2d', marginTop:5, borderRadius:2 }} />
@@ -756,7 +756,7 @@ function Wardrobe({ items, equipped, onDragStart, onDragEnd, onClick }) {
       <div style={{
         position: 'relative', zIndex: 2,
         display: 'flex', flexWrap: 'wrap',
-        padding: '4px 8px 8px',
+        padding: '6px 10px 10px',
         alignContent: 'flex-start',
         overflowY: 'auto',
         flex: 1,
@@ -769,8 +769,7 @@ function Wardrobe({ items, equipped, onDragStart, onDragEnd, onClick }) {
             item={item}
             isEquipped={isEquipped(item)}
             rotation={ROTATIONS[idx % ROTATIONS.length]}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+            onPointerDragStart={onPointerDragStart}
             onClick={onClick}
           />
         ))}
@@ -779,9 +778,9 @@ function Wardrobe({ items, equipped, onDragStart, onDragEnd, onClick }) {
       {/* Footer hint — unfiltered */}
       <div style={{
         position:'relative', zIndex:2,
-        padding:'4px 14px 14px',
+        padding:'6px 16px 16px',
         fontFamily:'"Balsamiq Sans",cursive',
-        fontSize:9, color:'#7a5c3a', lineHeight:1.5,
+        fontSize:11, color:'#7a5c3a', lineHeight:1.5,
       }}>
         drag onto doll or click to equip ★<br />
         click doll body part to unequip
@@ -849,8 +848,8 @@ function Stickers() {
   const items = [
     {
       text: "BARK WITH\nTHE BITE",
-      style: { top: '7%', right: '248px' },
-      rotate: 8,
+      style: { top: '12%', left: '50%', transform: 'translateX(-50%)' },
+      rotate: 0,
       bg: '#f5e6c8',
       borderColor: '#f5a623',
       textColor: '#8b2635',
@@ -890,7 +889,7 @@ function Stickers() {
             position: 'absolute',
             ...s.style,
             zIndex: 8,
-            transform: `rotate(${s.rotate}deg)`,
+            transform: s.style.transform ? `${s.style.transform} rotate(${s.rotate}deg)` : `rotate(${s.rotate}deg)`,
           }}
         >
           {/* Filtered bg — shape only */}
@@ -898,8 +897,8 @@ function Stickers() {
             position: 'absolute',
             inset: 0,
             background: s.bg,
-            border: `3px solid ${s.borderColor}`,
-            boxShadow: '3px 3px 0 0 #2d2d2d',
+            border: `5px solid ${s.borderColor}`,
+            boxShadow: '5px 5px 0 0 #2d2d2d',
             borderRadius: R1,
             filter: 'url(#micro-warp)',
           }} />
@@ -907,11 +906,11 @@ function Stickers() {
           <div style={{
             position: 'relative',
             zIndex: 2,
-            padding: '6px 12px',
+            padding: '12px 20px',
             fontFamily: '"Luckiest Guy",cursive',
-            fontSize: 11,
+            fontSize: 24,
             color: s.textColor,
-            textShadow: '1px 1px 0 rgba(0,0,0,0.4)',
+            textShadow: '2px 2px 0 rgba(0,0,0,0.4)',
             whiteSpace: 'pre',
             lineHeight: 1.35,
             letterSpacing: 1,
@@ -928,47 +927,113 @@ function Stickers() {
 // ROOT APP COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ─── Floating drag clone rendered at pointer position ────────────────────────
+function DragClone({ item, x, y }) {
+  if (!item) return null
+  return (
+    <div style={{
+      position: 'fixed',
+      left: x - 55,
+      top: y - 55,
+      width: 110,
+      height: 110,
+      pointerEvents: 'none',
+      zIndex: 9999,
+      transform: 'rotate(-6deg) scale(1.12)',
+      transition: 'none',
+    }}>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: item.color,
+        border: '4px solid #2d2d2d',
+        boxShadow: `0 0 0 3px ${item.accent}, 6px 6px 0 0 #2d2d2d`,
+        borderRadius: R1,
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        gap: 4, pointerEvents: 'none',
+      }}>
+        <div style={{ width: '50%', height: 6, background: item.accent, border: '2px solid #2d2d2d', borderRadius: 2 }} />
+        <span style={{
+          fontFamily: '"Balsamiq Sans", cursive',
+          fontSize: 24, fontWeight: 700,
+          color: item.accent, textAlign: 'center',
+          lineHeight: 1.15, padding: '0 6px',
+          textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
+          wordBreak: 'break-word', maxWidth: '95%',
+        }}>{item.name}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [equipped, setEquipped] = useState({ head: null, top: null, bottom: null })
   const [activeTab, setActiveTab] = useState('tops')
   const [dragOver, setDragOver]   = useState(false)
+  const [dragState, setDragState] = useState(null) // { item, x, y }
+  const dollRef = useRef(null)
 
-  function handleDragStart(e, item) {
-    e.dataTransfer.setData('text/plain', JSON.stringify(item))
-    e.dataTransfer.effectAllowed = 'copy'
-  }
-
-  function handleDragEnd() {
-    setDragOver(false)
-  }
-
-  function handleDragOver(e) {
+  const handlePointerDragStart = useCallback((e, item) => {
+    // Only activate on left button / touch
+    if (e.button !== undefined && e.button !== 0) return
     e.preventDefault()
-    e.dataTransfer.dropEffect = 'copy'
-    setDragOver(true)
-  }
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setDragState({ item, x: e.clientX, y: e.clientY })
+  }, [])
 
-  // Only clear dragOver when actually leaving the doll container (not a child)
-  function handleDragLeave(e) {
-    if (!e.currentTarget.contains(e.relatedTarget)) {
+  useEffect(() => {
+    if (!dragState) return
+
+    function onMove(e) {
+      const x = e.clientX ?? e.touches?.[0]?.clientX
+      const y = e.clientY ?? e.touches?.[0]?.clientY
+      setDragState(prev => ({ ...prev, x, y }))
+
+      // Check if pointer is over the doll (with padding for scaled character)
+      if (dollRef.current) {
+        const rect = dollRef.current.getBoundingClientRect()
+        const padding = 40
+        const over = x >= (rect.left - padding) && x <= (rect.right + padding) &&
+                     y >= (rect.top - padding) && y <= (rect.bottom + padding)
+        setDragOver(over)
+      }
+    }
+
+    function onUp(e) {
+      const x = e.clientX
+      const y = e.clientY
+      let dropped = false
+
+      if (dollRef.current && dragState.item) {
+        const rect = dollRef.current.getBoundingClientRect()
+        // Add padding to drop zone since character is scaled
+        const padding = 40
+        dropped = x >= (rect.left - padding) && x <= (rect.right + padding) &&
+                  y >= (rect.top - padding) && y <= (rect.bottom + padding)
+
+        if (dropped) {
+          const slot = getSlot(dragState.item)
+          setEquipped(prev => ({
+            ...prev,
+            [slot]: prev[slot]?.id === dragState.item.id ? null : dragState.item,
+          }))
+        }
+      }
+
+      setDragState(null)
       setDragOver(false)
     }
-  }
 
-  function handleDrop(e) {
-    e.preventDefault()
-    try {
-      const item = JSON.parse(e.dataTransfer.getData('text/plain'))
-      const slot = getSlot(item)
-      setEquipped(prev => ({
-        ...prev,
-        [slot]: prev[slot]?.id === item.id ? null : item,
-      }))
-    } catch (_) {
-      // malformed drag data — ignore
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
     }
-    setDragOver(false)
-  }
+  }, [dragState])
 
   function handleClickItem(item) {
     const slot = getSlot(item)
@@ -995,6 +1060,7 @@ export default function App() {
         position: 'relative',
         overflow: 'hidden',
         fontFamily: '"Balsamiq Sans", cursive',
+        cursor: dragState ? 'grabbing' : 'default',
       }}
     >
       <SvgDefs />
@@ -1004,22 +1070,20 @@ export default function App() {
       <LogoBlob />
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <CharacterDoll
+        dollRef={dollRef}
         equipped={equipped}
         dragOver={dragOver}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
         onUnequip={handleUnequip}
       />
       <Wardrobe
         items={INVENTORY[activeTab]}
         equipped={equipped}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
+        onPointerDragStart={handlePointerDragStart}
         onClick={handleClickItem}
       />
       <HeaderButtons onReset={handleReset} />
       <Stickers />
+      <DragClone item={dragState?.item} x={dragState?.x} y={dragState?.y} />
     </div>
   )
 }
