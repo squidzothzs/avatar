@@ -395,7 +395,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
       ref={dollRef}
       style={{
         position: 'absolute',
-        bottom: isMobile ? '18%' : '20vh',
+        bottom: isMobile ? '30%' : '20vh',
         top: 'auto',
         left: isMobile ? '2%' : '42%',
         marginLeft: 0,
