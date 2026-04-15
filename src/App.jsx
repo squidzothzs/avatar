@@ -381,7 +381,7 @@ function Sidebar({ activeTab, onTabChange }) {
 // Drop zone for drag-and-drop; also handles per-slot click unequip
 // ═══════════════════════════════════════════════════════════════════════════
 
-function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
+function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
   // Reusable style factory for warped body-part divs
   const part = (extra = {}) => ({
     position: 'absolute',
@@ -395,14 +395,16 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
       ref={dollRef}
       style={{
         position: 'absolute',
-        bottom: '20vh',
-        left: '42%',
+        bottom: isMobile ? 'auto' : '20vh',
+        top: isMobile ? '12%' : 'auto',
+        left: isMobile ? '50%' : '42%',
+        marginLeft: isMobile ? -87 : 0, 
         width: 174,
         height: 410,
         zIndex: 10,
         cursor: dragOver ? C.copy : C.default,
-        transform: 'scale(1.5)',
-        transformOrigin: 'bottom center',
+        transform: `scale(${isMobile ? 0.8 : 1.5})`,
+        transformOrigin: isMobile ? 'top center' : 'bottom center',
       }}
     >
       {/* Drop-zone ring — only visible while dragging over */}
@@ -648,7 +650,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, onUnequip }) {
 // WARDROBE ITEM — filtered bg shape, unfiltered label on top
 // ═══════════════════════════════════════════════════════════════════════════
 
-function WardrobeItem({ item, isEquipped, isDragging, rotation, onPointerDragStart, onClick }) {
+function WardrobeItem({ item, isEquipped, isDragging, isMobile, rotation, onPointerDragStart, onClick }) {
   const [hovered, setHovered] = useState(false)
 
   return (
@@ -659,10 +661,10 @@ function WardrobeItem({ item, isEquipped, isDragging, rotation, onPointerDragSta
       onMouseLeave={() => setHovered(false)}
       style={{
         position: 'relative',
-        width: 180,
-        height: 180,
-        margin: '10px 12px',
-        transform: `rotate(${rotation}deg) scale(${(hovered ? 1.08 : 1) * (item.scale || 1)})`,
+        width: isMobile ? 110 : 180,
+        height: isMobile ? 110 : 180,
+        margin: isMobile ? '6px 4px' : '10px 12px',
+        transform: `rotate(${rotation}deg) scale(${(hovered && !isMobile ? 1.08 : 1) * (item.scale || 1)})`,
         cursor: C.grab,
         flexShrink: 0,
         userSelect: 'none',
@@ -779,22 +781,23 @@ function WardrobeItem({ item, isEquipped, isDragging, rotation, onPointerDragSta
 // WARDROBE PANEL — right-side panel with scrollable item grid
 // ═══════════════════════════════════════════════════════════════════════════
 
-function Wardrobe({ items, equipped, isDragging, onPointerDragStart, onClick }) {
+function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, onClick }) {
   const isEquipped = item => equipped[getSlot(item)]?.id === item.id
 
   return (
     <div
       style={{
         position: 'absolute',
-        top: '4%',
-        right: '6%',
-        width: 630,
+        top: isMobile ? '55%' : '4%',
+        left: isMobile ? '2%' : 'auto',
+        right: isMobile ? '2%' : '6%',
+        width: isMobile ? '96%' : 630,
         bottom: '2%',
         zIndex: 15,
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        alignContent: 'center',
+        alignContent: isMobile ? 'flex-start' : 'center',
         overflowY: 'auto',
         scrollbarWidth: 'none',
       }}
@@ -805,6 +808,7 @@ function Wardrobe({ items, equipped, isDragging, onPointerDragStart, onClick }) 
           item={item}
           isEquipped={isEquipped(item)}
           isDragging={isDragging}
+          isMobile={isMobile}
           rotation={ROTATIONS[idx % ROTATIONS.length]}
           onPointerDragStart={onPointerDragStart}
           onClick={onClick}
@@ -818,7 +822,7 @@ function Wardrobe({ items, equipped, isDragging, onPointerDragStart, onClick }) 
 // TOP-RIGHT HEADER BUTTONS — MEMORY / SHOP / RESET
 // ═══════════════════════════════════════════════════════════════════════════
 
-function HeaderButtons({ onReset }) {
+function HeaderButtons({ onReset, isMobile }) {
   const btns = [
     { label: 'MEMORY', color: '#f5a623', textColor: '#2d2d2d' },
     { label: 'SHOP',   color: '#8b2635', textColor: '#f5e6c8' },
@@ -828,7 +832,7 @@ function HeaderButtons({ onReset }) {
     <div style={{
       position: 'absolute',
       top: 14,
-      right: 252,
+      right: isMobile ? 14 : 252,
       zIndex: 20,
       display: 'flex',
       gap: 8,
@@ -937,15 +941,15 @@ function Stickers() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ─── Floating drag clone rendered at pointer position ────────────────────────
-function DragClone({ item, x, y }) {
+function DragClone({ item, x, y, isMobile }) {
   if (!item) return null
   return (
     <div style={{
       position: 'fixed',
-      left: x - 90,
-      top: y - 90,
-      width: 180,
-      height: 180,
+      left: x - (isMobile ? 55 : 90),
+      top: y - (isMobile ? 55 : 90),
+      width: isMobile ? 110 : 180,
+      height: isMobile ? 110 : 180,
       pointerEvents: 'none',
       zIndex: 9999,
       transform: `rotate(-6deg) scale(${1.05 * (item.scale || 1)})`,
@@ -998,6 +1002,14 @@ export default function App() {
   const [dragOver, setDragOver]   = useState(false)
   const [dragState, setDragState] = useState(null) // { item, x, y }
   const dollRef = useRef(null)
+  
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 800)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 800)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const handlePointerDragStart = useCallback((e, item) => {
     // Only activate on left button / touch
@@ -1098,12 +1110,13 @@ export default function App() {
       <SvgDefs />
       <PaperOverlay />
       <Floor />
-      <BackWindow />
+      {!isMobile && <BackWindow />}
       <LogoBlob />
       <CharacterDoll
         dollRef={dollRef}
         equipped={equipped}
         dragOver={dragOver}
+        isMobile={isMobile}
         onUnequip={handleUnequip}
       />
       <Wardrobe
@@ -1114,12 +1127,13 @@ export default function App() {
         ]}
         equipped={equipped}
         isDragging={!!dragState}
+        isMobile={isMobile}
         onPointerDragStart={handlePointerDragStart}
         onClick={handleClickItem}
       />
-      <HeaderButtons onReset={handleReset} />
-      <Stickers />
-      <DragClone item={dragState?.item} x={dragState?.x} y={dragState?.y} />
+      <HeaderButtons onReset={handleReset} isMobile={isMobile} />
+      {!isMobile && <Stickers />}
+      <DragClone item={dragState?.item} x={dragState?.x} y={dragState?.y} isMobile={isMobile} />
     </div>
   )
 }
