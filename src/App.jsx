@@ -395,16 +395,16 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
       ref={dollRef}
       style={{
         position: 'absolute',
-        bottom: isMobile ? 'auto' : '20vh',
-        top: isMobile ? '12%' : 'auto',
-        left: isMobile ? '50%' : '42%',
-        marginLeft: isMobile ? -87 : 0, 
+        bottom: isMobile ? '5%' : '20vh',
+        top: isMobile ? '10%' : 'auto',
+        left: isMobile ? '2%' : '42%',
+        marginLeft: 0,
         width: 174,
         height: 410,
         zIndex: 10,
         cursor: dragOver ? C.copy : C.default,
-        transform: `scale(${isMobile ? 0.8 : 1.5})`,
-        transformOrigin: isMobile ? 'top center' : 'bottom center',
+        transform: `scale(${isMobile ? 0.75 : 1.5})`,
+        transformOrigin: isMobile ? 'top left' : 'bottom center',
       }}
     >
       {/* Drop-zone ring — only visible while dragging over */}
@@ -788,17 +788,18 @@ function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, o
     <div
       style={{
         position: 'absolute',
-        top: isMobile ? '55%' : '4%',
-        left: isMobile ? '2%' : 'auto',
-        right: isMobile ? '2%' : '6%',
-        width: isMobile ? '96%' : 630,
+        top: isMobile ? '4%' : '4%',
+        left: isMobile ? '44%' : 'auto',
+        right: isMobile ? '1%' : '6%',
+        width: isMobile ? '54%' : 630,
         bottom: '2%',
         zIndex: 15,
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'center',
         alignContent: isMobile ? 'flex-start' : 'center',
-        overflowY: 'auto',
+        overflowY: isMobile && isDragging ? 'hidden' : 'auto',
+        touchAction: isMobile && isDragging ? 'none' : 'auto',
         scrollbarWidth: 'none',
       }}
     >
