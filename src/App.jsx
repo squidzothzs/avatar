@@ -821,33 +821,40 @@ function ProductWindow({ item, onClose, onAddToCart, zIndex }) {
   const [pos, setPos] = useState({ x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 })
   const dragRef = useRef(null)
 
-  const handleMouseDown = (e) => {
+  const handlePointerDown = (e) => {
+    // Only drag with primary pointer (left mouse button or single touch)
+    if (e.button !== undefined && e.button !== 0) return
+    
+    // Capture pointer so movement is tracked even if it leaves the title bar
+    e.currentTarget.setPointerCapture(e.pointerId)
+    
     const startX = e.clientX - pos.x
     const startY = e.clientY - pos.y
     
-    const onMouseMove = (moveE) => {
+    const onPointerMove = (moveE) => {
       setPos({
         x: moveE.clientX - startX,
         y: moveE.clientY - startY
       })
     }
     
-    const onMouseUp = () => {
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
+    const onPointerUp = (upE) => {
+      upE.currentTarget.releasePointerCapture(upE.pointerId)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', onPointerUp)
     }
     
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
   }
 
   return (
     <div
       style={{
         position: 'fixed',
-        left: pos.x,
-        top: pos.y,
-        width: 380,
+        left: isMobile ? '5%' : pos.x,
+        top: isMobile ? '15%' : pos.y,
+        width: isMobile ? '90%' : 380,
         background: '#c0c0c0',
         border: '2px solid #fff',
         borderRightColor: '#808080',
@@ -857,11 +864,12 @@ function ProductWindow({ item, onClose, onAddToCart, zIndex }) {
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'Tahoma, sans-serif',
+        touchAction: 'none', // Prevents scrolling while dragging
       }}
     >
       {/* Title Bar */}
       <div
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
         style={{
           background: 'linear-gradient(90deg, #000080 0%, #1084d0 100%)',
           padding: '4px 6px',
@@ -964,10 +972,10 @@ function CartPanel({ cart, onClose, onUpdateQty, onRemove, onClear }) {
   return (
     <div style={{
       position: 'fixed',
-      right: 20,
-      top: 80,
-      width: 350,
-      maxHeight: '80vh',
+      right: isMobile ? '5%' : 20,
+      top: isMobile ? '10%' : 80,
+      width: isMobile ? '90%' : 350,
+      maxHeight: isMobile ? '75vh' : '80vh',
       background: '#fff',
       border: '4px solid #2d2d2d',
       boxShadow: '8px 8px 0 #2d2d2d',
@@ -1342,8 +1350,10 @@ export default function App() {
   // Shop Handlers
   const handleOpenWindow = useCallback((item) => {
     setOpenWindows(prev => {
-      // Don't open same item twice
-      if (prev.find(w => w.item.id === item.id)) return prev
+      // Toggle behavior: if already open, close it
+      if (prev.find(w => w.item.id === item.id)) {
+        return prev.filter(w => w.item.id !== item.id)
+      }
       return [...prev, { item, zIndex: nextZIndex }]
     })
     setNextZIndex(prev => prev + 1)
