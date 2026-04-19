@@ -959,7 +959,7 @@ const DragClone = forwardRef(function DragClone({ item, isMobile }, ref) {
       transition: 'none',
       willChange: 'transform',
     }}>
-      {item.image ? (
+      {item && (item.image ? (
         <img 
           src={item.image} 
           alt={item.name}
@@ -996,7 +996,7 @@ const DragClone = forwardRef(function DragClone({ item, isMobile }, ref) {
             }}>{item.name}</span>
           </div>
         </>
-      )}
+      ))}
     </div>
   )
 })
