@@ -817,7 +817,7 @@ function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, o
 // PRODUCT PAGE WINDOW — Windows-style popup
 // ═══════════════════════════════════════════════════════════════════════════
 
-function ProductWindow({ item, onClose, onAddToCart, zIndex }) {
+function ProductWindow({ item, onClose, onAddToCart, zIndex, isMobile }) {
   const [pos, setPos] = useState({ x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 })
   const dragRef = useRef(null)
 
@@ -966,7 +966,7 @@ function ProductWindow({ item, onClose, onAddToCart, zIndex }) {
 // SHOPPING CART PANEL
 // ═══════════════════════════════════════════════════════════════════════════
 
-function CartPanel({ cart, onClose, onUpdateQty, onRemove, onClear }) {
+function CartPanel({ cart, onClose, onUpdateQty, onRemove, onClear, isMobile }) {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   return (
@@ -1451,6 +1451,7 @@ export default function App() {
           key={win.item.id} 
           item={win.item} 
           zIndex={win.zIndex}
+          isMobile={isMobile}
           onClose={() => handleCloseWindow(win.item.id)}
           onAddToCart={handleAddToCart}
         />
@@ -1460,6 +1461,7 @@ export default function App() {
       {isCartOpen && (
         <CartPanel 
           cart={cart}
+          isMobile={isMobile}
           onClose={() => setIsCartOpen(false)}
           onUpdateQty={handleUpdateCartQty}
           onRemove={handleRemoveFromCart}
