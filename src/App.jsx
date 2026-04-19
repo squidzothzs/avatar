@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect, forwardRef } from 'react'
-import { Crown, Shirt, Package, Star, X, Zap } from 'lucide-react'
+import { useState, useRef, useCallback, useEffect, forwardRef, useMemo } from 'react'
+import { Crown, Shirt, Package, Star, X, Zap, ShoppingCart, Minus, Plus, Trash2 } from 'lucide-react'
 
 import mogiBeanieImg from '../assets/mogi beanie.png'
 import mogiHoodieImg from '../assets/mogi hoodie.png'
@@ -14,22 +14,22 @@ import stripeImg from '../assets/stripe.png'
 
 const INVENTORY = {
   headwear: [
-    { id: 'h1', name: 'MOGI Beanie', image: mogiBeanieImg, color: '#1a2744', accent: '#f5a623' },
-    { id: 'h2', name: 'Monster Beanie', image: monsterBeanieImg, color: '#1a1a1a', accent: '#e8c94f' },
-    { id: 'h3', name: 'Bucket Hat',     color: '#6b7c4a', accent: '#f5e6c8' },
+    { id: 'h1', name: 'MOGI Beanie', image: mogiBeanieImg, color: '#1a2744', accent: '#f5a623', price: 35, desc: 'Classic knit beanie with signature MOGI embroidery.' },
+    { id: 'h2', name: 'Monster Beanie', image: monsterBeanieImg, color: '#1a1a1a', accent: '#e8c94f', price: 42, desc: 'Heavyweight acrylic beanie for the cold world.' },
+    { id: 'h3', name: 'Bucket Hat',     color: '#6b7c4a', accent: '#f5e6c8', price: 38, desc: 'Outdoor ready cotton twill with wobbly vibes.' },
   ],
   tops: [
-    { id: 't1', name: 'Plaid Hoodie', image: plaidHoodieImg, color: '#8b2635', accent: '#f5a623' },
-    { id: 't2', name: 'Stripe Shirt', image: stripeImg, scale: 1.35, color: '#87ceeb', accent: '#cc2200' },
-    { id: 't3', name: 'Stripe Crewneck', image: crewneckImg, color: '#5b9bd5', accent: '#8b2635' },
-    { id: 't4', name: 'Rasta Tee',       color: '#2d5016', accent: '#f5a623' },
-    { id: 't5', name: 'Denim Jacket',    color: '#4a5d7a', accent: '#f5a623' },
-    { id: 't6', name: 'MOGI Hoodie', image: mogiHoodieImg, color: '#1a1a1a', accent: '#e8c94f' },
+    { id: 't1', name: 'Plaid Hoodie', image: plaidHoodieImg, color: '#8b2635', accent: '#f5a623', price: 85, desc: 'Heavyweight plaid flannel fused with 450GSM cotton.' },
+    { id: 't2', name: 'Stripe Shirt', image: stripeImg, scale: 1.35, color: '#87ceeb', accent: '#cc2200', price: 55, desc: '90s skate inspired striped tee with boxy fit.' },
+    { id: 't3', name: 'Stripe Crewneck', image: crewneckImg, color: '#5b9bd5', accent: '#8b2635', price: 75, desc: 'Vintage wash crewneck with wide stripe detailing.' },
+    { id: 't4', name: 'Rasta Tee',       color: '#2d5016', accent: '#f5a623', price: 45, desc: 'Natural cotton tee with organic dye finish.' },
+    { id: 't5', name: 'Denim Jacket',    color: '#4a5d7a', accent: '#f5a623', price: 120, desc: 'Raw denim trucker jacket with sketchy stitching.' },
+    { id: 't6', name: 'MOGI Hoodie', image: mogiHoodieImg, color: '#1a1a1a', accent: '#e8c94f', price: 95, desc: 'The iconic MOGI oversized hoodie. Essential.' },
   ],
   bottoms: [
-    { id: 'b1', name: 'Wide Khakis',  color: '#c8a96a', accent: '#2d2d2d' },
-    { id: 'b2', name: 'Dark Shorts',  color: '#2d3748', accent: '#f5a623' },
-    { id: 'b3', name: 'Denim Shorts', color: '#4a5d7a', accent: '#e8e8e8' },
+    { id: 'b1', name: 'Wide Khakis',  color: '#c8a96a', accent: '#2d2d2d', price: 70, desc: 'Extra wide leg khakis for maximum comfort.' },
+    { id: 'b2', name: 'Dark Shorts',  color: '#2d3748', accent: '#f5a623', price: 50, desc: 'Nylon tech shorts with adjustable waist.' },
+    { id: 'b3', name: 'Denim Shorts', color: '#4a5d7a', accent: '#e8e8e8', price: 65, desc: 'Distressed denim shorts with raw hem.' },
   ],
 }
 
@@ -441,8 +441,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
         {/* Hat / headwear overlay — rendered inside head, unfiltered shape */}
         {equipped.head && (
           <div
-            onClick={() => onUnequip('head')}
-            title="Click to unequip"
+            title="Equipped"
             style={{
               position: 'absolute',
               top: -22,
@@ -454,7 +453,6 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
               border: '3px solid #2d2d2d',
               borderBottom: 'none',
               zIndex: 6,
-              cursor: C.pointer,
               overflow: 'hidden',
             }}
           >
@@ -521,8 +519,6 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
 
       {/* ── TORSO ── click to unequip top */}
       <div
-        onClick={equipped.top ? () => onUnequip('top') : undefined}
-        title={equipped.top ? 'Click to unequip' : 'Drop a top here'}
         style={part({
           width:116, height:134, top:102, left:'50%',
           transform:'translateX(-50%)',
@@ -531,7 +527,6 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
           boxShadow: dragOver ? `0 0 0 3px #f5a623, 4px 4px 0 0 #2d2d2d` : '4px 4px 0 0 #2d2d2d',
           transition:'background 0.22s, box-shadow 0.15s',
           zIndex:4,
-          cursor: equipped.top ? C.pointer : C.crosshair,
           overflow:'hidden',
         })}
       >
@@ -578,28 +573,22 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
 
       {/* ── LEFT LEG ── click to unequip bottom */}
       <div
-        onClick={equipped.bottom ? () => onUnequip('bottom') : undefined}
-        title={equipped.bottom ? 'Click to unequip' : 'Drop bottoms here'}
         style={part({
           width:46, height:126, top:228, left:'16%',
           background: equipped.bottom ? equipped.bottom.color : '#2d3050',
           transform:'rotate(3deg)',
           borderRadius:R1, boxShadow:'3px 3px 0 0 #2d2d2d',
           transition:'background 0.22s', zIndex:3,
-          cursor: equipped.bottom ? C.pointer : C.crosshair,
         })}
       />
       {/* ── RIGHT LEG ── */}
       <div
-        onClick={equipped.bottom ? () => onUnequip('bottom') : undefined}
-        title={equipped.bottom ? 'Click to unequip' : 'Drop bottoms here'}
         style={part({
           width:46, height:126, top:228, right:'16%',
           background: equipped.bottom ? equipped.bottom.color : '#2d3050',
           transform:'rotate(-3deg)',
           borderRadius:R2, boxShadow:'3px 3px 0 0 #2d2d2d',
           transition:'background 0.22s', zIndex:3,
-          cursor: equipped.bottom ? C.pointer : C.crosshair,
         })}
       />
 
@@ -657,7 +646,11 @@ function WardrobeItem({ item, isEquipped, isDragging, isMobile, rotation, onPoin
   return (
     <div
       onPointerDown={e => onPointerDragStart(e, item)}
-      onClick={() => onClick(item)}
+      onClick={(e) => {
+        // Only trigger click if not dragged
+        if (e.defaultPrevented) return
+        onClick(item)
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -782,7 +775,7 @@ function WardrobeItem({ item, isEquipped, isDragging, isMobile, rotation, onPoin
 // WARDROBE PANEL — right-side panel with scrollable item grid
 // ═══════════════════════════════════════════════════════════════════════════
 
-function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, onClick }) {
+function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, onItemClick }) {
   const isEquipped = item => equipped[getSlot(item)]?.id === item.id
 
   return (
@@ -813,9 +806,240 @@ function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, o
           isMobile={isMobile}
           rotation={ROTATIONS[idx % ROTATIONS.length]}
           onPointerDragStart={onPointerDragStart}
-          onClick={onClick}
+          onClick={onItemClick}
         />
       ))}
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PRODUCT PAGE WINDOW — Windows-style popup
+// ═══════════════════════════════════════════════════════════════════════════
+
+function ProductWindow({ item, onClose, onAddToCart, zIndex }) {
+  const [pos, setPos] = useState({ x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 })
+  const dragRef = useRef(null)
+
+  const handleMouseDown = (e) => {
+    const startX = e.clientX - pos.x
+    const startY = e.clientY - pos.y
+    
+    const onMouseMove = (moveE) => {
+      setPos({
+        x: moveE.clientX - startX,
+        y: moveE.clientY - startY
+      })
+    }
+    
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+    
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        left: pos.x,
+        top: pos.y,
+        width: 380,
+        background: '#c0c0c0',
+        border: '2px solid #fff',
+        borderRightColor: '#808080',
+        borderBottomColor: '#808080',
+        boxShadow: '4px 4px 0 rgba(0,0,0,0.5)',
+        zIndex,
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'Tahoma, sans-serif',
+      }}
+    >
+      {/* Title Bar */}
+      <div
+        onMouseDown={handleMouseDown}
+        style={{
+          background: 'linear-gradient(90deg, #000080 0%, #1084d0 100%)',
+          padding: '4px 6px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'move',
+        }}
+      >
+        <span style={{ color: '#fff', fontSize: 13, fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Zap size={14} fill="#f5a623" color="#f5a623" />
+          {item.name} - Product Information
+        </span>
+        <button
+          onClick={onClose}
+          style={{
+            background: '#c0c0c0',
+            border: '1px solid #fff',
+            borderRightColor: '#000',
+            borderBottomColor: '#000',
+            width: 18,
+            height: 18,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            cursor: C.pointer,
+          }}
+        >
+          <X size={14} color="#000" />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{
+          background: '#fff',
+          border: '2px inset #808080',
+          height: 200,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundSize: '20px 20px',
+          backgroundImage: 'radial-gradient(#e0e0e0 1px, transparent 0)',
+        }}>
+          {item.image ? (
+            <img src={item.image} style={{ height: '90%', objectFit: 'contain' }} alt={item.name} />
+          ) : (
+            <div style={{
+              width: 120, height: 120, background: item.color, border: '3px solid #000',
+              borderRadius: '50% 10% 40% 10%', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <span style={{ fontWeight: 'bold', fontSize: 24, color: item.accent }}>MOGI</span>
+            </div>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <h2 style={{ margin: 0, fontSize: 22, color: '#000' }}>{item.name}</h2>
+            <span style={{ fontSize: 20, fontWeight: 'bold', color: '#b84a4a' }}>${item.price}.00</span>
+          </div>
+          <p style={{ margin: 0, fontSize: 14, color: '#333', lineHeight: 1.4 }}>{item.desc}</p>
+        </div>
+
+        <button
+          onClick={() => onAddToCart(item)}
+          style={{
+            background: '#c0c0c0',
+            border: '2px solid #fff',
+            borderRightColor: '#000',
+            borderBottomColor: '#000',
+            padding: '10px',
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: '#000',
+            cursor: C.pointer,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            marginTop: 4,
+          }}
+        >
+          <ShoppingCart size={20} />
+          ADD TO CART
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SHOPPING CART PANEL
+// ═══════════════════════════════════════════════════════════════════════════
+
+function CartPanel({ cart, onClose, onUpdateQty, onRemove, onClear }) {
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  return (
+    <div style={{
+      position: 'fixed',
+      right: 20,
+      top: 80,
+      width: 350,
+      maxHeight: '80vh',
+      background: '#fff',
+      border: '4px solid #2d2d2d',
+      boxShadow: '8px 8px 0 #2d2d2d',
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: '"Balsamiq Sans", cursive',
+    }}>
+      <div style={{
+        background: '#8b2635',
+        padding: '12px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottom: '3px solid #2d2d2d',
+      }}>
+        <h2 style={{ margin: 0, color: '#f5e6c8', fontSize: 20, letterSpacing: 1 }}>YOUR SHOPPING CART</h2>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: C.pointer }}>
+          <X color="#f5e6c8" />
+        </button>
+      </div>
+
+      <div style={{ padding: 16, overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {cart.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 0', color: '#888' }}>
+            <ShoppingCart size={48} style={{ opacity: 0.3, marginBottom: 12 }} />
+            <p>Your cart is empty.</p>
+          </div>
+        ) : (
+          cart.map(item => (
+            <div key={item.id} style={{
+              display: 'flex',
+              gap: 12,
+              padding: 10,
+              background: '#f9f9f9',
+              border: '2px solid #eee',
+              borderRadius: 8,
+            }}>
+              <div style={{ width: 60, height: 60, background: item.color, borderRadius: 4, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                 {item.image ? <img src={item.image} style={{ width: '80%', objectFit: 'contain' }} /> : <Zap size={24} color={item.accent} />}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>{item.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '2px solid #2d2d2d', borderRadius: 4, background: '#fff' }}>
+                    <button onClick={() => onUpdateQty(item.id, -1)} style={{ padding: 2, background: 'none', border: 'none', cursor: C.pointer }}><Minus size={14} /></button>
+                    <span style={{ padding: '0 8px', fontSize: 14 }}>{item.quantity}</span>
+                    <button onClick={() => onUpdateQty(item.id, 1)} style={{ padding: 2, background: 'none', border: 'none', cursor: C.pointer }}><Plus size={14} /></button>
+                  </div>
+                  <span style={{ fontWeight: 'bold' }}>${item.price * item.quantity}</span>
+                </div>
+              </div>
+              <button onClick={() => onRemove(item.id)} style={{ color: '#8b2635', background: 'none', border: 'none', cursor: C.pointer }}>
+                <Trash2 size={20} />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      {cart.length > 0 && (
+        <div style={{ padding: 16, borderTop: '3px solid #2d2d2d', background: '#f5e6c8' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 'bold', marginBottom: 14 }}>
+            <span>TOTAL:</span>
+            <span>${total}.00</span>
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={onClear} style={{ flex: 1, padding: 10, background: '#fff', border: '2px solid #2d2d2d', fontWeight: 'bold', cursor: C.pointer }}>CLEAR</button>
+            <button style={{ flex: 2, padding: 10, background: '#7aad5a', border: '3px solid #2d2d2d', color: '#fff', fontWeight: 'bold', fontSize: 16, boxShadow: '4px 4px 0 #2d2d2d', cursor: C.pointer }}>CHECKOUT</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -824,10 +1048,10 @@ function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, o
 // TOP-RIGHT HEADER BUTTONS — MEMORY / SHOP / RESET
 // ═══════════════════════════════════════════════════════════════════════════
 
-function HeaderButtons({ onReset, isMobile }) {
+function HeaderButtons({ onReset, onToggleCart, cartCount, isMobile }) {
   const btns = [
-    { label: 'MEMORY', color: '#f5a623', textColor: '#2d2d2d' },
-    { label: 'SHOP',   color: '#8b2635', textColor: '#f5e6c8' },
+    { label: 'CART',   color: '#7aad5a', textColor: '#fff', icon: ShoppingCart },
+    { label: 'OP PAGE', color: '#f5a623', textColor: '#2d2d2d' },
     { label: 'RESET',  color: '#3a3a3a', textColor: '#f5e6c8' },
   ]
   return (
@@ -839,7 +1063,7 @@ function HeaderButtons({ onReset, isMobile }) {
       display: 'flex',
       gap: 8,
     }}>
-      {btns.map(({ label, color, textColor }) => (
+      {btns.map(({ label, color, textColor, icon: Icon }) => (
         <div key={label} style={{ position:'relative' }}>
           {/* Filtered button bg */}
           <div style={{
@@ -851,7 +1075,7 @@ function HeaderButtons({ onReset, isMobile }) {
             filter:'url(#micro-warp)',
           }} />
           <button
-            onClick={label === 'RESET' ? onReset : undefined}
+            onClick={label === 'RESET' ? onReset : label === 'CART' ? onToggleCart : undefined}
             style={{
               position:'relative', zIndex:2,
               background:'transparent', border:'none',
@@ -861,9 +1085,23 @@ function HeaderButtons({ onReset, isMobile }) {
               letterSpacing:2,
               textShadow: textColor === '#2d2d2d' ? 'none' : '1px 1px 0 #2d2d2d',
               cursor: C.pointer,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
             }}
           >
+            {Icon && <Icon size={18} />}
             {label}
+            {label === 'CART' && cartCount > 0 && (
+              <span style={{
+                background: '#8b2635',
+                color: '#fff',
+                fontSize: 10,
+                padding: '2px 6px',
+                borderRadius: 10,
+                marginLeft: 2,
+              }}>{cartCount}</span>
+            )}
           </button>
         </div>
       ))}
@@ -1005,10 +1243,16 @@ export default function App() {
   const [equipped, setEquipped] = useState({ head: null, top: null, bottom: null })
   const [dragOver, setDragOver]   = useState(false)
   const [dragState, setDragState] = useState(null) // { item }
-  const dollRef = useRef(null)
-  const dragCloneRef = useRef(null)
-  const isMobileRef = useRef(false)
   
+  // New State for Shop and Cart
+  const [openWindows, setOpenWindows] = useState([]) // [{ id, item, zIndex }]
+  const [cart, setCart] = useState([])
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [nextZIndex, setNextZIndex] = useState(100)
+
+  const dragCloneRef = useRef(null)
+  const dollRef = useRef(null)
+  const isMobileRef = useRef(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800)
 
   useEffect(() => {
@@ -1095,13 +1339,46 @@ export default function App() {
     }
   }, [dragState, moveDragClone])
 
-  function handleClickItem(item) {
-    const slot = getSlot(item)
-    setEquipped(prev => ({
-      ...prev,
-      [slot]: prev[slot]?.id === item.id ? null : item,
+  // Shop Handlers
+  const handleOpenWindow = useCallback((item) => {
+    setOpenWindows(prev => {
+      // Don't open same item twice
+      if (prev.find(w => w.item.id === item.id)) return prev
+      return [...prev, { item, zIndex: nextZIndex }]
+    })
+    setNextZIndex(prev => prev + 1)
+  }, [nextZIndex])
+
+  const handleCloseWindow = (itemId) => {
+    setOpenWindows(prev => prev.filter(w => w.item.id !== itemId))
+  }
+
+  const handleAddToCart = (item) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === item.id)
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)
+      }
+      return [...prev, { ...item, quantity: 1 }]
+    })
+    setIsCartOpen(true)
+  }
+
+  const handleUpdateCartQty = (itemId, delta) => {
+    setCart(prev => prev.map(i => {
+      if (i.id === itemId) {
+        const newQty = Math.max(1, i.quantity + delta)
+        return { ...i, quantity: newQty }
+      }
+      return i
     }))
   }
+
+  const handleRemoveFromCart = (itemId) => {
+    setCart(prev => prev.filter(i => i.id !== itemId))
+  }
+
+  const handleClearCart = () => setCart([])
 
   function handleUnequip(slot) {
     setEquipped(prev => ({ ...prev, [slot]: null }))
@@ -1110,6 +1387,8 @@ export default function App() {
   function handleReset() {
     setEquipped({ head: null, top: null, bottom: null })
   }
+
+  const cartCount = useMemo(() => cart.reduce((sum, i) => sum + i.quantity, 0), [cart])
 
   return (
     <div
@@ -1146,11 +1425,40 @@ export default function App() {
         isDragging={!!dragState}
         isMobile={isMobile}
         onPointerDragStart={handlePointerDragStart}
-        onClick={handleClickItem}
+        onItemClick={handleOpenWindow}
       />
-      <HeaderButtons onReset={handleReset} isMobile={isMobile} />
+      <HeaderButtons 
+        onReset={handleReset} 
+        onToggleCart={() => setIsCartOpen(!isCartOpen)}
+        cartCount={cartCount}
+        isMobile={isMobile} 
+      />
       {!isMobile && <Stickers />}
+      
+      {/* Shop Windows */}
+      {openWindows.map(win => (
+        <ProductWindow 
+          key={win.item.id} 
+          item={win.item} 
+          zIndex={win.zIndex}
+          onClose={() => handleCloseWindow(win.item.id)}
+          onAddToCart={handleAddToCart}
+        />
+      ))}
+
+      {/* Cart Panel */}
+      {isCartOpen && (
+        <CartPanel 
+          cart={cart}
+          onClose={() => setIsCartOpen(false)}
+          onUpdateQty={handleUpdateCartQty}
+          onRemove={handleRemoveFromCart}
+          onClear={handleClearCart}
+        />
+      )}
+
       <DragClone ref={dragCloneRef} item={dragState?.item} isMobile={isMobile} />
+
     </div>
   )
 }
