@@ -886,7 +886,11 @@ function ProductWindow({ item, onClose, onAddToCart, zIndex, isMobile }) {
           {item.name} - Product Information
         </span>
         <button
-          onClick={onClose}
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
           style={{
             background: '#c0c0c0',
             border: '1px solid #fff',
