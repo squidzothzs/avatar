@@ -818,15 +818,17 @@ function Wardrobe({ items, equipped, isDragging, isMobile, onPointerDragStart, o
 // ═══════════════════════════════════════════════════════════════════════════
 
 function ProductWindow({ item, onClose, onAddToCart, zIndex, isMobile }) {
-  const [pos, setPos] = useState({ x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 })
+  const [pos, setPos] = useState({ 
+    x: isMobile ? window.innerWidth * 0.05 : 100 + Math.random() * 200, 
+    y: isMobile ? window.innerHeight * 0.15 : 100 + Math.random() * 200 
+  })
   const dragRef = useRef(null)
 
   const handlePointerDown = (e) => {
-    // Only drag with primary pointer (left mouse button or single touch)
     if (e.button !== undefined && e.button !== 0) return
     
-    // Capture pointer so movement is tracked even if it leaves the title bar
-    e.currentTarget.setPointerCapture(e.pointerId)
+    const el = e.currentTarget
+    el.setPointerCapture(e.pointerId)
     
     const startX = e.clientX - pos.x
     const startY = e.clientY - pos.y
@@ -839,7 +841,7 @@ function ProductWindow({ item, onClose, onAddToCart, zIndex, isMobile }) {
     }
     
     const onPointerUp = (upE) => {
-      upE.currentTarget.releasePointerCapture(upE.pointerId)
+      try { el.releasePointerCapture(upE.pointerId) } catch(e) {}
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
     }
@@ -852,8 +854,8 @@ function ProductWindow({ item, onClose, onAddToCart, zIndex, isMobile }) {
     <div
       style={{
         position: 'fixed',
-        left: isMobile ? '5%' : pos.x,
-        top: isMobile ? '15%' : pos.y,
+        left: pos.x,
+        top: pos.y,
         width: isMobile ? '90%' : 380,
         background: '#c0c0c0',
         border: '2px solid #fff',
@@ -1371,7 +1373,6 @@ export default function App() {
       }
       return [...prev, { ...item, quantity: 1 }]
     })
-    setIsCartOpen(true)
   }
 
   const handleUpdateCartQty = (itemId, delta) => {
