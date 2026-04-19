@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, forwardRef } from 'react'
 import { Crown, Shirt, Package, Star, X, Zap } from 'lucide-react'
 
 import mogiBeanieImg from '../assets/mogi beanie.png'
@@ -233,12 +233,12 @@ function BackWindow() {
 // LOGO BLOB — top-left organic blob, micro-warp on shape, text unfiltered
 // ═══════════════════════════════════════════════════════════════════════════
 
-function LogoBlob() {
+function LogoBlob({ isMobile }) {
   return (
     <div
       style={{
         position: 'absolute',
-        top: -18,
+        top: isMobile ? 52 : -18,
         left: -18,
         width: 186,
         height: 130,
@@ -268,20 +268,21 @@ function LogoBlob() {
         }}
       >
         <div style={{
-          fontFamily: '"Luckiest Guy", cursive',
-          fontSize: 26,
+          fontFamily: '"Fredoka One", sans-serif',
+          fontSize: 36,
+          fontWeight: 'bold',
           color: '#f5a623',
-          letterSpacing: 3,
-          textShadow: '3px 3px 0 #2d2d2d, -1px -1px 0 #2d2d2d',
-          WebkitTextStroke: '1px #2d2d2d',
+          letterSpacing: 2,
+          textShadow: '2px 2px 0 #2d2d2d',
         }}>
           MOGIS
         </div>
         <div style={{
-          fontFamily: '"Luckiest Guy", cursive',
-          fontSize: 18,
+          fontFamily: '"Fredoka One", sans-serif',
+          fontSize: 28,
+          fontWeight: 'bold',
           color: '#f5e6c8',
-          letterSpacing: 4,
+          letterSpacing: 2,
           textShadow: '2px 2px 0 #2d2d2d',
           marginTop: 1,
         }}>
@@ -362,7 +363,7 @@ function Sidebar({ activeTab, onTabChange }) {
           position: 'relative',
           zIndex: 2,
           textAlign: 'center',
-          fontFamily: '"Luckiest Guy", cursive',
+          fontFamily: '"Fredoka One", sans-serif',
           fontSize: 24,
           color: '#f5a623',
           textShadow: '2px 2px 0 #2d2d2d',
@@ -500,7 +501,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
               background:'#f0f0f0', border:'1px solid #888',
               display:'flex', alignItems:'center', justifyContent:'center',
             }}>
-              <span style={{ fontFamily:'"Luckiest Guy",cursive', fontSize:8, color:'#2d2d2d', lineHeight:1 }}>{l}</span>
+              <span style={{ fontFamily:'"Fredoka One",sans-serif', fontSize:8, color:'#2d2d2d', lineHeight:1 }}>{l}</span>
             </div>
           ))}
         </div>
@@ -542,7 +543,7 @@ function CharacterDoll({ dollRef, equipped, dragOver, isMobile, onUnequip }) {
             pointerEvents:'none',
           }}>
             <span style={{
-              fontFamily:'"Luckiest Guy",cursive',
+              fontFamily:'"Fredoka One",sans-serif',
               fontSize:14, color:equipped.top.accent,
               textShadow:'1px 1px 0 #2d2d2d',
               WebkitTextStroke:'0.5px #2d2d2d',
@@ -855,8 +856,8 @@ function HeaderButtons({ onReset, isMobile }) {
               position:'relative', zIndex:2,
               background:'transparent', border:'none',
               padding:'10px 20px',
-              fontFamily:'"Luckiest Guy",cursive',
-              fontSize:15, color:textColor,
+              fontFamily:'"Fredoka One",sans-serif',
+              fontSize:15, fontWeight:'bold', color:textColor,
               letterSpacing:2,
               textShadow: textColor === '#2d2d2d' ? 'none' : '1px 1px 0 #2d2d2d',
               cursor: C.pointer,
@@ -911,8 +912,8 @@ function Stickers() {
             position: 'absolute',
             inset: 0,
             background: s.bg,
-            border: `5px solid ${s.borderColor}`,
-            boxShadow: '5px 5px 0 0 #2d2d2d',
+            border: `7px solid ${s.borderColor}`,
+            boxShadow: '8px 8px 0 0 #2d2d2d',
             borderRadius: R1,
             filter: 'url(#micro-warp)',
           }} />
@@ -920,14 +921,15 @@ function Stickers() {
           <div style={{
             position: 'relative',
             zIndex: 2,
-            padding: '12px 20px',
-            fontFamily: '"Luckiest Guy",cursive',
-            fontSize: 24,
+            padding: '20px 32px',
+            fontFamily: '"Fredoka One",sans-serif',
+            fontSize: 26,
+            fontWeight: 'bold',
             color: s.textColor,
-            textShadow: '2px 2px 0 rgba(0,0,0,0.4)',
+            textShadow: '2px 2px 0 rgba(0,0,0,0.3)',
             whiteSpace: 'pre',
             lineHeight: 1.35,
-            letterSpacing: 1,
+            letterSpacing: 2,
           }}>
             {s.text}
           </div>
@@ -941,20 +943,21 @@ function Stickers() {
 // ROOT APP COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ─── Floating drag clone rendered at pointer position ────────────────────────
-function DragClone({ item, x, y, isMobile }) {
-  if (!item) return null
+// ─── Floating drag clone — uses forwardRef so parent can move it via DOM directly ─
+const DragClone = forwardRef(function DragClone({ item, isMobile }, ref) {
   return (
-    <div style={{
+    <div ref={ref} style={{
       position: 'fixed',
-      left: x - (isMobile ? 55 : 90),
-      top: y - (isMobile ? 55 : 90),
+      left: 0,
+      top: 0,
+      display: item ? 'block' : 'none',
       width: isMobile ? 110 : 180,
       height: isMobile ? 110 : 180,
       pointerEvents: 'none',
       zIndex: 9999,
-      transform: `rotate(-6deg) scale(${1.05 * (item.scale || 1)})`,
+      transform: 'translate(0px, 0px) rotate(-6deg)',
       transition: 'none',
+      willChange: 'transform',
     }}>
       {item.image ? (
         <img 
@@ -996,30 +999,41 @@ function DragClone({ item, x, y, isMobile }) {
       )}
     </div>
   )
-}
+})
 
 export default function App() {
   const [equipped, setEquipped] = useState({ head: null, top: null, bottom: null })
   const [dragOver, setDragOver]   = useState(false)
-  const [dragState, setDragState] = useState(null) // { item, x, y }
+  const [dragState, setDragState] = useState(null) // { item }
   const dollRef = useRef(null)
+  const dragCloneRef = useRef(null)
+  const isMobileRef = useRef(false)
   
   const [isMobile, setIsMobile] = useState(window.innerWidth < 800)
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 800)
+    const handleResize = () => {
+      const mobile = window.innerWidth < 800
+      setIsMobile(mobile)
+      isMobileRef.current = mobile
+    }
+    isMobileRef.current = window.innerWidth < 800
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  const moveDragClone = useCallback((x, y) => {
+    if (!dragCloneRef.current) return
+    const offset = isMobileRef.current ? 55 : 90
+    dragCloneRef.current.style.transform = `translate(${x - offset}px, ${y - offset}px) rotate(-6deg)`
+  }, [])
+
   const handlePointerDragStart = useCallback((e, item) => {
-    // Only activate on left button / touch
     if (e.button !== undefined && e.button !== 0) return
     e.preventDefault()
-    // NOTE: do NOT call setPointerCapture here — it routes all subsequent
-    // pointer events to the source element and breaks the window listeners.
-    setDragState({ item, x: e.clientX, y: e.clientY })
-  }, [])
+    moveDragClone(e.clientX, e.clientY)
+    setDragState({ item })
+  }, [moveDragClone])
 
   useEffect(() => {
     if (!dragState) return
@@ -1046,11 +1060,9 @@ export default function App() {
     }
 
     function onMove(e) {
-      if (e.cancelable !== false) {
-        e.preventDefault()
-      }
+      if (e.cancelable !== false) e.preventDefault()
       const { x, y } = getPos(e)
-      setDragState(prev => ({ ...prev, x, y }))
+      moveDragClone(x, y)
       setDragOver(isOverDoll(x, y))
     }
 
@@ -1081,7 +1093,7 @@ export default function App() {
       window.removeEventListener('touchmove',   onMove, true)
       window.removeEventListener('touchend',    onUp,   true)
     }
-  }, [dragState])
+  }, [dragState, moveDragClone])
 
   function handleClickItem(item) {
     const slot = getSlot(item)
@@ -1116,7 +1128,7 @@ export default function App() {
       <PaperOverlay />
       <Floor />
       {!isMobile && <BackWindow />}
-      <LogoBlob />
+      <LogoBlob isMobile={isMobile} />
       <CharacterDoll
         dollRef={dollRef}
         equipped={equipped}
@@ -1138,7 +1150,7 @@ export default function App() {
       />
       <HeaderButtons onReset={handleReset} isMobile={isMobile} />
       {!isMobile && <Stickers />}
-      <DragClone item={dragState?.item} x={dragState?.x} y={dragState?.y} isMobile={isMobile} />
+      <DragClone ref={dragCloneRef} item={dragState?.item} isMobile={isMobile} />
     </div>
   )
 }
